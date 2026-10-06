@@ -18,7 +18,7 @@ jobs:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@main
       - name: Install from the tap in this checkout
-        timeout-minutes: 45
+        timeout-minutes: 30
         run: |
           brew tap-new local/sqlide --no-git
           cp Formula/sqlide.rb "$(brew --repository local/sqlide)/Formula/"
