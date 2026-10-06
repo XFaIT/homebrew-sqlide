@@ -9,6 +9,10 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
     steps:
       - uses: actions/checkout@v4
       - name: Set up Homebrew
@@ -17,15 +21,16 @@ jobs:
         run: |
           brew tap-new local/sqlide --no-git
           cp Formula/sqlide.rb "$(brew --repository local/sqlide)/Formula/"
-          set -o pipefail
-          brew install --build-from-source local/sqlide/sqlide 2>&1 | tee brew.log
+          (timeout 1500 brew install --verbose --build-from-source local/sqlide/sqlide > brew.log 2>&1; echo "exit=$?" >> brew.log) || true
+          tail -3 brew.log
+          grep -q "^exit=0" brew.log
       - name: Test
         run: brew test local/sqlide/sqlide
       - name: Run
         run: |
           sqlide --version
           sqlide doctor
-      - name: Report failure
-        if: failure()
+      - name: Log tail as annotations
+        if: always()
         run: |
-          tail -40 brew.log | sed 's/^/::error::/' || true
+          tail -25 brew.log | tr -d '\r' | sed 's/%/%25/g; s/^/::error::/' || true
