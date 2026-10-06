@@ -13,7 +13,7 @@ class Sqlide < Formula
   depends_on "python@3.12"
 
   def install
-    venv = virtualenv_create(libexec, "python3.12", without_pip: false)
+    venv = virtualenv_create(libexec, "python3.12")
     system venv.root/"bin/python", "-m", "pip", "install", "--only-binary=:all:", "sqlide==#{version}"
     # keg-only openjdk is not on PATH: point sqlide at it
     java_home = if OS.mac?
