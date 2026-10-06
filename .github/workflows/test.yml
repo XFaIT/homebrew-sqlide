@@ -29,11 +29,14 @@ jobs:
         run: brew test local/sqlide/sqlide
       - name: Run
         run: |
-          sqlide --version
-          sqlide doctor
+          bin="$(brew --prefix)/bin/sqlide"
+          { "$bin" --version; "$bin" doctor; echo "doctor_exit=$?"; } > run.log 2>&1 || true
+          cat run.log
+          grep -q "^sqlide 0.1.0" run.log
+          grep -q "\[ok\] java" run.log
       - name: Log tail as annotations
         if: always()
         run: |
-          sed 's/\x1b\[[0-9;]*[A-Za-z]//g' brew.log | tr -d '\r' | tail -40 | cut -c1-200 > tail.log
+          { tail -15 brew.log; echo '--- run.log ---'; cat run.log 2>/dev/null; } | sed 's/\x1b\[[0-9;]*[A-Za-z]//g' | tr -d '\r' | tail -40 | cut -c1-200 > tail.log
           body=$(sed 's/%/%25/g' tail.log | awk '{printf "%s%%0A", $0}')
           echo "::error title=brew log tail::${body}"
