@@ -18,7 +18,7 @@ jobs:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@main
       - name: Install from the tap in this checkout
-        timeout-minutes: 25
+        timeout-minutes: 10
         run: |
           brew tap-new local/sqlide --no-git
           cp Formula/sqlide.rb "$(brew --repository local/sqlide)/Formula/"
@@ -34,4 +34,4 @@ jobs:
       - name: Log tail as annotations
         if: always()
         run: |
-          tail -25 brew.log | tr -d '\r' | sed 's/%/%25/g; s/^/::error::/' || true
+          grep -a '^==>' brew.log | head -40 | tr -d '\r' | sed 's/%/%25/g; s/^/::error::/' || true
