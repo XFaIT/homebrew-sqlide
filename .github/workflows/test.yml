@@ -18,10 +18,11 @@ jobs:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@main
       - name: Install from the tap in this checkout
+        timeout-minutes: 25
         run: |
           brew tap-new local/sqlide --no-git
           cp Formula/sqlide.rb "$(brew --repository local/sqlide)/Formula/"
-          (timeout 1500 brew install --verbose --build-from-source local/sqlide/sqlide > brew.log 2>&1; echo "exit=$?" >> brew.log) || true
+          (brew install --verbose --build-from-source local/sqlide/sqlide > brew.log 2>&1; echo "exit=$?" >> brew.log) || true
           tail -3 brew.log
           grep -q "^exit=0" brew.log
       - name: Test
