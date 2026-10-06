@@ -32,7 +32,7 @@ jobs:
           bin="$(brew --prefix)/bin/sqlide"
           { "$bin" --version; "$bin" doctor; echo "doctor_exit=$?"; } > run.log 2>&1 || true
           cat run.log
-          grep -q "^sqlide 0.1.0" run.log
+          grep -q "^sqlide 0.1.1" run.log
           grep -q "\[ok\] java" run.log
       - name: Log tail as annotations
         if: always()
