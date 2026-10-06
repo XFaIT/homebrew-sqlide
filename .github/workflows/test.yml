@@ -1,0 +1,31 @@
+name: Formula
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  brew:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+      - name: Install from the tap in this checkout
+        run: |
+          brew tap-new local/sqlide --no-git
+          cp Formula/sqlide.rb "$(brew --repository local/sqlide)/Formula/"
+          set -o pipefail
+          brew install --build-from-source local/sqlide/sqlide 2>&1 | tee brew.log
+      - name: Test
+        run: brew test local/sqlide/sqlide
+      - name: Run
+        run: |
+          sqlide --version
+          sqlide doctor
+      - name: Report failure
+        if: failure()
+        run: |
+          tail -40 brew.log | sed 's/^/::error::/' || true
